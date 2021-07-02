@@ -1,0 +1,129 @@
+--
+title: "Machine Learning Fit of Parameters of a Weight Lifting Exercise"
+author: "Mutsuji Takahashi"
+date: "2021/6/27"
+output: html_document
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+"assignment8-4.Rmd"
+library(caret)
+library(knitr)
+library(rlang)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Abstract
+A predictor was studied to predict a kind of weight lifting exercise. The dataset is divided to three dataset for training, testing and validation. Three prediction methods(Random forest(RF), Linear discriminant analysis(lda),Recursive Partitioning and Regression Trees(rpart)) were tried, Rf method was found to be the best using test dataset. The method was confirmed to be valid utilizing a dataset for validity.
+
+## Exploratory analysis
+The dataset was a group of parameters such as acceleration by three axis, translation by three axis, etc.). The participants were told to do "Unilateral Dumbbell Bicep Curl", that is a weight lifting exercise holding a dumbbell in one hand and bend forearm upward to a shoulder, in six ways. One good one and 5 other well seen bad behavior. If a predictor can discriminate these kind of bad exercise, it will be used as a self teaching device for a efficient and safe exercise.
+```{r dataset, echo=FALSE, message=FALSE}
+library(caret)
+library(tidyverse)
+setwd("~/cw/data-science/08_Practical_Machine_Learning/PraticalMachineLearningAssignment")
+#
+train0 <- read.csv("pml-training.csv")
+quize  <- read.csv("pml-testing.csv")
+# separate dataset for training, testing and validation
+# do not use variables which has NA for simplicity 
+x <- sapply(1:160, function(x){!any(is.na(train0[,x]))}) 
+y <- sapply(1:160, function(x){!any(is.na(quize[,x]))}) 
+z <- x & y
+z[c(1:7)] <- FALSE
+# extract unneeded variables
+set.seed(12345)
+inBuild <- createDataPartition(y=train0$classe, p=0.8, list=FALSE)
+valid <- train0[-inBuild,z]
+tratest <- train0[inBuild,z]
+inTrain <- createDataPartition(y=tratest$classe, p=0.6/0.8, list=FALSE)
+train <- tratest[inTrain,]
+test <- tratest[-inTrain,]
+```
+The dataset was downloaded from coursera repository.
+The variables which include any NA's were excluded for simplicity, as this was a starting level of analysis. 
+The data were divided into three part in a proportion of 0.6, 0.2, 0.2 as training, testing and valid, respectively. 
+
+```{r dimension, echo=TRUE}
+dim(train0)
+dim(train);dim(test);dim(valid)
+```
+```{r featurePlot, echo=TRUE, cache=TRUE}
+featurePlot(x=train[,c(1:12)],y=train$classe)
+```
+  
+## Analysis
+Three prediction methods(Random forest(RF), Linear discriminant analysis(lda),Recursive Partitioning and Regression Trees(rpart)) were tried. The results were as follows:
+	  
+---
+
+### rpart 
+```{r rpart, echo=FALSE, eval=TRUE, cache=TRUE}
+fit_rpart <- train(classe ~ ., method="rpart", data=train)
+pred_rpart <- predict(fit_rpart, newdata=test)
+ 
+#confusionMatrix(data=pred_rpart, reference=test$classe)
+
+```
+```{r rpart_result, echo=TRUE}
+fit_rpart$finalModel
+confusionMatrix(data=pred_rpart, reference=test$classe)
+```
+train:`r fit_rpart$results$Accuracy[1]`  
+test:`r confusionMatrix(data=pred_rpart,reference=test$classe)$overall[1]`  
+
+---
+
+### lda
+```{r lda, echo=FALSE, eval=TRUE, cache=TRUE}
+
+fit_lda <- train(classe ~ ., method="lda", data=train)
+pred_lda <- predict(fit_lda, newdata=test)
+```
+```{r lda_result, echo=TRUE}
+fit_lda$finalModel
+confusionMatrix(data=pred_lda, reference=test$classe)
+```
+train:`r fit_lda$results$Accuracy[1]`  
+test:`r confusionMatrix(data=pred_lda,reference=test$classe)$overall[1]`  
+
+---
+
+### rf
+```{r rfLoad, , echo=FALSE, eval=TRUE, cache=TRUE}
+load("2021-06-28.RData")
+fit_rf <- fit
+pred_rf <- predict(fit_rf, newdata=test)
+```
+
+```{r rf, echo=FALSE, eval=FALSE}
+fit_rf <- train(classe ~ ., method="rf", data=train)
+pred_rf <- predict(fit_rf, newdata=test)
+```
+```{r rf_result, echo=TRUE, cache=TRUE}
+fit_rf$finalModel
+confusionMatrix(data=pred_rf, reference=test$classe)
+```
+train:`r fit$results$Accuracy[1]`  
+test:`r confusionMatrix(data=pred,reference=test$classe)$overall[1]`  
+
+Rf showed best accuracy among three analysis. On the other hand the calculation time was also largest(>1hour).
+
+## Cross validation
+Since test dataset was used to find the best analysis method, we should not use it for evaluating out of sample error to see  not overfitting the model. Valid dataset was used for evaluation, which had not been touched after splitting from the whole dataset.
+
+```{r crossValidation, echo=TRUE, eval=TRUE}
+pred_valid <- predict(fit_rf, newdata=valid)
+confusionMatrix(data=pred_valid, reference=valid$classe)
+```
+
+The accuracy of 0.9929 showed that the out of sample error was small and there was no overfitting.
+
+## Conclusion
+We successfully constructed a model for discriminating weight training exercise. 
+
+## Quize
+```{r quize, echo=TRUE, eval=TRUE}
+pred_quize <- predict(fit_rf, newdata=quize)
+pred_quize
+```

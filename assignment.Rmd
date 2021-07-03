@@ -90,22 +90,24 @@ test:`r confusionMatrix(data=pred_lda,reference=test$classe)$overall[1]`
 ---
 
 ### rf
-```{r rfLoad, , echo=FALSE, eval=TRUE, cache=TRUE}
-load("2021-06-28.RData")
-fit_rf <- fit
+```{r rfLoad, , echo=FALSE, eval=TRUE, cache=FALSE}
+load("~/cw/data-science/08_Practical_Machine_Learning/PraticalMachineLearningAssignment/2021-07-02xx.Rdata")
 pred_rf <- predict(fit_rf, newdata=test)
 ```
 
-```{r rf, echo=FALSE, eval=FALSE}
+```{r rf, echo=FALSE, eval=FALSE, cache=TRUE}
 fit_rf <- train(classe ~ ., method="rf", data=train)
 pred_rf <- predict(fit_rf, newdata=test)
+#save.image(file="~/cw/data-science/08_Practical_Machine_Learning/PraticalMachineLearningAssignment/2021-07-02x.RData")
+
 ```
-```{r rf_result, echo=TRUE, cache=TRUE}
+
+```{r rf_result, eval=TRUE, echo=TRUE}
 fit_rf$finalModel
 confusionMatrix(data=pred_rf, reference=test$classe)
 ```
-train:`r fit$results$Accuracy[1]`  
-test:`r confusionMatrix(data=pred,reference=test$classe)$overall[1]`  
+train:`r fit_rf$results$Accuracy[1]`  
+test:`r confusionMatrix(data=pred_rf,reference=test$classe)$overall[1]`  
 
 Rf showed best accuracy among three analysis. On the other hand the calculation time was also largest(>1hour).
 

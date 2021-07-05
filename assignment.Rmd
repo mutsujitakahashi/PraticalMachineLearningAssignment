@@ -118,8 +118,7 @@ Since test dataset was used to find the best analysis method, we should not use 
 pred_valid <- predict(fit_rf, newdata=valid)
 confusionMatrix(data=pred_valid, reference=valid$classe)
 ```
-
-The accuracy of 0.9929 showed that the out of sample error was small and there was no overfitting.
+The accuracy of `r sprintf("%.4f", confusionMatrix(data=pred_valid, reference=valid$classe)$overall[1])` showed that the out of sample error was small and there was no overfitting.
 
 ## Conclusion
 We successfully constructed a model for discriminating weight training exercise. 

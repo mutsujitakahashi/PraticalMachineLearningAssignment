@@ -463,25 +463,67 @@ test:0.7111904</p>
 ##  randomForest(x = x, y = y, mtry = min(param$mtry, ncol(x))) 
 ##                Type of random forest: classification
 ##                      Number of trees: 500
-## No. of variables tried at each split: 2
+## No. of variables tried at each split: 27
 ## 
-##         OOB estimate of  error rate: 0.89%
+##         OOB estimate of  error rate: 0.95%
 ## Confusion matrix:
-##      A    B    C    D    E class.error
-## A 3344    3    0    0    1 0.001194743
-## B   14 2257    8    0    0 0.009653357
-## C    0   22 2029    3    0 0.012171373
-## D    0    0   42 1887    1 0.022279793
-## E    0    0    5    6 2154 0.005080831</code></pre>
+##      A    B    C    D    E  class.error
+## A 3345    2    0    0    1 0.0008960573
+## B   23 2245   10    1    0 0.0149188240
+## C    0   22 2025    6    1 0.0141187926
+## D    0    1   30 1898    1 0.0165803109
+## E    0    1    6    7 2151 0.0064665127</code></pre>
 <pre class="r"><code>confusionMatrix(data=pred_rf, reference=test$classe)</code></pre>
 <pre><code>## Confusion Matrix and Statistics
 ## 
 ##           Reference
 ## Prediction    A    B    C    D    E
-##          A 1116    4    0    0    0
-##          B    0  754    3    0    0
-##          C    0    1  681   14    2
-##          D    0    0    0  628    1
+##          A 1116    7    0    0    0
+##          B    0  748    0    1    1
+##          C    0    3  682   10    2
+##          D    0    1    2  631    0
+##          E    0    0    0    1  718
+## 
+## Overall Statistics
+##                                           
+##                Accuracy : 0.9929          
+##                  95% CI : (0.9897, 0.9953)
+##     No Information Rate : 0.2845          
+##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
+##                                           
+##                   Kappa : 0.991           
+##                                           
+##  Mcnemar&#39;s Test P-Value : NA              
+## 
+## Statistics by Class:
+## 
+##                      Class: A Class: B Class: C Class: D Class: E
+## Sensitivity            1.0000   0.9855   0.9971   0.9813   0.9958
+## Specificity            0.9975   0.9994   0.9954   0.9991   0.9997
+## Pos Pred Value         0.9938   0.9973   0.9785   0.9953   0.9986
+## Neg Pred Value         1.0000   0.9965   0.9994   0.9964   0.9991
+## Prevalence             0.2845   0.1935   0.1744   0.1639   0.1838
+## Detection Rate         0.2845   0.1907   0.1738   0.1608   0.1830
+## Detection Prevalence   0.2863   0.1912   0.1777   0.1616   0.1833
+## Balanced Accuracy      0.9988   0.9924   0.9962   0.9902   0.9978</code></pre>
+<p>train:0.9851333<br />
+test:0.9928626</p>
+<p>Rf showed best accuracy among three analysis. On the other hand the calculation time was also largest(&gt;1hour).</p>
+</div>
+</div>
+<div id="cross-validation" class="section level2">
+<h2>Cross validation</h2>
+<p>Since test dataset was used to find the best analysis method, we should not use it for evaluating out of sample error to see not overfitting the model. Valid dataset was used for evaluation, which had not been touched after splitting from the whole dataset.</p>
+<pre class="r"><code>pred_valid &lt;- predict(fit_rf, newdata=valid)
+confusionMatrix(data=pred_valid, reference=valid$classe)</code></pre>
+<pre><code>## Confusion Matrix and Statistics
+## 
+##           Reference
+## Prediction    A    B    C    D    E
+##          A 1116    6    0    0    0
+##          B    0  751    1    0    1
+##          C    0    2  680   10    1
+##          D    0    0    3  632    1
 ##          E    0    0    0    1  718
 ## 
 ## Overall Statistics
@@ -498,57 +540,15 @@ test:0.7111904</p>
 ## Statistics by Class:
 ## 
 ##                      Class: A Class: B Class: C Class: D Class: E
-## Sensitivity            1.0000   0.9934   0.9956   0.9767   0.9958
-## Specificity            0.9986   0.9991   0.9948   0.9997   0.9997
-## Pos Pred Value         0.9964   0.9960   0.9756   0.9984   0.9986
-## Neg Pred Value         1.0000   0.9984   0.9991   0.9954   0.9991
+## Sensitivity            1.0000   0.9895   0.9942   0.9829   0.9958
+## Specificity            0.9979   0.9994   0.9960   0.9988   0.9997
+## Pos Pred Value         0.9947   0.9973   0.9812   0.9937   0.9986
+## Neg Pred Value         1.0000   0.9975   0.9988   0.9967   0.9991
 ## Prevalence             0.2845   0.1935   0.1744   0.1639   0.1838
-## Detection Rate         0.2845   0.1922   0.1736   0.1601   0.1830
-## Detection Prevalence   0.2855   0.1930   0.1779   0.1603   0.1833
-## Balanced Accuracy      0.9993   0.9962   0.9952   0.9882   0.9978</code></pre>
-<p>train:0.9858828<br />
-test:0.9933724</p>
-<p>Rf showed best accuracy among three analysis. On the other hand the calculation time was also largest(&gt;1hour).</p>
-</div>
-</div>
-<div id="cross-validation" class="section level2">
-<h2>Cross validation</h2>
-<p>Since test dataset was used to find the best analysis method, we should not use it for evaluating out of sample error to see not overfitting the model. Valid dataset was used for evaluation, which had not been touched after splitting from the whole dataset.</p>
-<pre class="r"><code>pred_valid &lt;- predict(fit_rf, newdata=valid)
-confusionMatrix(data=pred_valid, reference=valid$classe)</code></pre>
-<pre><code>## Confusion Matrix and Statistics
-## 
-##           Reference
-## Prediction    A    B    C    D    E
-##          A 1116    3    0    0    0
-##          B    0  754    5    0    0
-##          C    0    2  678   15    1
-##          D    0    0    1  627    0
-##          E    0    0    0    1  720
-## 
-## Overall Statistics
-##                                           
-##                Accuracy : 0.9929          
-##                  95% CI : (0.9897, 0.9953)
-##     No Information Rate : 0.2845          
-##     P-Value [Acc &gt; NIR] : &lt; 2.2e-16       
-##                                           
-##                   Kappa : 0.991           
-##                                           
-##  Mcnemar&#39;s Test P-Value : NA              
-## 
-## Statistics by Class:
-## 
-##                      Class: A Class: B Class: C Class: D Class: E
-## Sensitivity            1.0000   0.9934   0.9912   0.9751   0.9986
-## Specificity            0.9989   0.9984   0.9944   0.9997   0.9997
-## Pos Pred Value         0.9973   0.9934   0.9741   0.9984   0.9986
-## Neg Pred Value         1.0000   0.9984   0.9981   0.9951   0.9997
-## Prevalence             0.2845   0.1935   0.1744   0.1639   0.1838
-## Detection Rate         0.2845   0.1922   0.1728   0.1598   0.1835
-## Detection Prevalence   0.2852   0.1935   0.1774   0.1601   0.1838
-## Balanced Accuracy      0.9995   0.9959   0.9928   0.9874   0.9992</code></pre>
-<p>The accuracy of 0.9929 showed that the out of sample error was small and there was no overfitting.</p>
+## Detection Rate         0.2845   0.1914   0.1733   0.1611   0.1830
+## Detection Prevalence   0.2860   0.1919   0.1767   0.1621   0.1833
+## Balanced Accuracy      0.9989   0.9944   0.9951   0.9908   0.9978</code></pre>
+<p>The accuracy of 0.9934 showed that the out of sample error was small and there was no overfitting.</p>
 </div>
 <div id="conclusion" class="section level2">
 <h2>Conclusion</h2>
